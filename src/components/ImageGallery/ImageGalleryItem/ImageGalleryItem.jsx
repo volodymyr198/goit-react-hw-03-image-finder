@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import css from './ImageGalleryItem.module.css';
 
 const ImageGalleryItem = ({ image, onImageClick }) => {
-    // console.log(image.largeImageURL);
     return (
         <li className={css.imageGalleryItem}>
             <img

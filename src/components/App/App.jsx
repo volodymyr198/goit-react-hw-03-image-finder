@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
+import Loader from '../Loader/Loader';
 import Modal from '../Modal/Modal';
 import Button from '../Button/Button';
 import ImageGallery from '../ImageGallery/ImageGallery';
@@ -41,8 +42,10 @@ class App extends Component {
             'https://pixabay.com/api/?&image_type=photo&orientation=horizontal&';
         const url = `${BASE_URL}q=${this.state.searchQuery}&page=${this.state.page}&key=${KEY}&per_page=${PER_PAGE}`;
 
+        this.setState({ isLoading: true });
         const response = await axios.get(url);
         const { data } = await response;
+        this.setState({ isLoading: false });
 
         console.log(data.totalHits);
         const totalPage = data.totalHits / PER_PAGE;
@@ -97,6 +100,8 @@ class App extends Component {
                     onImageClick={this.onImageClick}
                 />
                 {this.totalPage > 12 && <Button loadMore={this.loadMore} />}
+
+                {this.state.isLoading && <Loader />}
 
                 {this.state.isModalOpen && (
                     <Modal
