@@ -32,4 +32,10 @@ class Modal extends Component {
     }
 }
 
+Modal.propTypes = {
+    onCloseModal: PropTypes.func.isRequired,
+    onCloseBackdropClick: PropTypes.func.isRequired,
+    largeImageURL: PropTypes.string.isRequired,
+};
+
 export default Modal;
