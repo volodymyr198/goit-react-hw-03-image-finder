@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import Loader from '../Loader/Loader';
 import Modal from '../Modal/Modal';
 import Button from '../Button/Button';
@@ -16,8 +19,9 @@ class App extends Component {
         isLoading: false,
         isModalOpen: false,
         largeImageURL: '',
+        totalHits: '',
     };
-    //-----------------------форма-----------------
+    //-----------------------форма-сабмит----------------
     searchImage = value => {
         if (value !== this.state.searchQuery) {
             this.setState({
@@ -43,14 +47,18 @@ class App extends Component {
         const url = `${BASE_URL}q=${this.state.searchQuery}&page=${this.state.page}&key=${KEY}&per_page=${PER_PAGE}`;
 
         this.setState({ isLoading: true });
-        const response = await axios.get(url);
-        const { data } = await response;
-        this.setState({ isLoading: false });
+        try {
+            const response = await axios.get(url);
+            const { data } = await response;
+            this.setState({ isLoading: false });
 
-        console.log(data.totalHits);
-        const totalPage = data.totalHits / PER_PAGE;
-        console.log(totalPage);
-        this.setState({ images: data.hits });
+            if (data.totalHits === 0) {
+                this.notify();
+            }
+            this.setState({ images: data.hits, totalHits: data.totalHits });
+        } catch (error) {
+            this.errorNotify();
+        }
     }
 
     //----------кнопка загрузить еще----------------------
@@ -90,22 +98,52 @@ class App extends Component {
             this.fetchImages(this.state.searchQuery);
         }
     }
+    //---------очищаем картинки, если инпут пустой---------
+    onClearByInput = () => {
+        this.setState({ images: [], page: 1, searchQuery: '', totalHits: '' });
+    };
+    //-----------------нотификашки---------------------------
+    notify = () =>
+        toast.info(`Sorry, no images found for ${this.state.searchQuery}`, {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 2000,
+        });
+    errorNotify = () =>
+        toast.error('Unable to connect to server, please try again later', {
+            position: toast.POSITION.TOP_CENTER,
+            autoClose: 3000,
+        });
 
     render() {
+        const {
+            images,
+            largeImageURL,
+            isLoading,
+            isModalOpen,
+            totalHits,
+            page,
+        } = this.state;
         return (
             <div className={css.App}>
-                <Searchbar onSubmit={this.searchImage} />
+                <Searchbar
+                    onSubmit={this.searchImage}
+                    onClearByInput={this.onClearByInput}
+                />
                 <ImageGallery
-                    images={this.state.images}
+                    images={images}
                     onImageClick={this.onImageClick}
                 />
-                {this.totalPage > 12 && <Button loadMore={this.loadMore} />}
+                {totalHits > 12 && !isLoading && totalHits / 12 > page && (
+                    <Button loadMore={this.loadMore} />
+                )}
 
-                {this.state.isLoading && <Loader />}
+                {isLoading && <Loader />}
 
-                {this.state.isModalOpen && (
+                <ToastContainer />
+
+                {isModalOpen && (
                     <Modal
-                        largeImageURL={this.state.largeImageURL}
+                        largeImageURL={largeImageURL}
                         onCloseModal={this.onCloseModal}
                         onCloseBackdropClick={this.onCloseBackdropClick}
                     />

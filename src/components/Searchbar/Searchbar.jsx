@@ -19,6 +19,9 @@ class Searchbar extends Component {
     handleChange = ({ target }) => {
         const { name, value } = target;
         this.setState({ [name]: value });
+        if (value === '') {
+            this.props.onClearByInput();
+        }
     };
 
     render() {
@@ -50,6 +53,7 @@ class Searchbar extends Component {
 
 Searchbar.propTypes = {
     onSubmit: PropTypes.func.isRequired,
+    onClearByInput: PropTypes.func.isRequired,
 };
 
 export default Searchbar;

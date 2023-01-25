@@ -23,6 +23,7 @@ ImageGallery.propTypes = {
             webformatURL: PropTypes.string.isRequired,
         })
     ).isRequired,
+    onImageClick: PropTypes.func.isRequired,
 };
 
 export default ImageGallery;
