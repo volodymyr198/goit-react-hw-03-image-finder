@@ -11,6 +11,11 @@ import ImageGallery from '../ImageGallery/ImageGallery';
 import Searchbar from '../Searchbar/Searchbar';
 import css from '../App/App.module.css';
 
+const PER_PAGE = 12;
+const KEY = '31814066-d36b2cc87cac42beedbbff451';
+const BASE_URL =
+    'https://pixabay.com/api/?&image_type=photo&orientation=horizontal&';
+
 class App extends Component {
     state = {
         images: [],
@@ -40,10 +45,7 @@ class App extends Component {
         if (this.state.searchQuery === '') {
             return;
         }
-        const PER_PAGE = 12;
-        const KEY = '31814066-d36b2cc87cac42beedbbff451';
-        const BASE_URL =
-            'https://pixabay.com/api/?&image_type=photo&orientation=horizontal&';
+
         const url = `${BASE_URL}q=${this.state.searchQuery}&page=${this.state.page}&key=${KEY}&per_page=${PER_PAGE}`;
 
         this.setState({ isLoading: true });
@@ -55,7 +57,11 @@ class App extends Component {
             if (data.totalHits === 0) {
                 this.notify();
             }
-            this.setState({ images: data.hits, totalHits: data.totalHits });
+            this.setState(prevState => ({
+                images: [...prevState.images, ...data.hits],
+                totalHits: data.totalHits,
+            }));
+            console.log(this.state.images);
         } catch (error) {
             this.errorNotify();
         }
@@ -133,9 +139,11 @@ class App extends Component {
                     images={images}
                     onImageClick={this.onImageClick}
                 />
-                {totalHits > 12 && !isLoading && totalHits / 12 > page && (
-                    <Button loadMore={this.loadMore} />
-                )}
+                {totalHits > PER_PAGE &&
+                    !isLoading &&
+                    totalHits / PER_PAGE > page && (
+                        <Button loadMore={this.loadMore} />
+                    )}
 
                 {isLoading && <Loader />}
 
