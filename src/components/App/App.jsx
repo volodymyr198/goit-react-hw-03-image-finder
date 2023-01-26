@@ -61,7 +61,6 @@ class App extends Component {
                 images: [...prevState.images, ...data.hits],
                 totalHits: data.totalHits,
             }));
-            console.log(this.state.images);
         } catch (error) {
             this.errorNotify();
         }
